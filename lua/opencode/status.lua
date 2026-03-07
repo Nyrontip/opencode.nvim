@@ -49,15 +49,17 @@ function M.update(event)
     or event.type == "session.diff"
     -- Pretty good fallback
     or event.type == "session.heartbeat"
+    or (event.type == "session.status" and event.properties.status.type == "idle")
   then
     M.status = "idle"
   elseif
     event.type == "message.updated"
     or event.type == "message.part.updated"
     or event.type == "permission.replied"
+    or (event.type == "session.status" and event.properties.status.type == "busy")
   then
     M.status = "responding"
-  elseif event.type == "permission.updated" then
+  elseif event.type == "permission.asked" then
     M.status = "requesting_permission"
   elseif event.type == "session.error" then
     M.status = "error"
