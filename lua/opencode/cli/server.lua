@@ -22,6 +22,7 @@ local M = {}
 ---@field cwd string
 ---@field title string
 ---@field subagents opencode.cli.client.Agent[]
+---@field custom_commands opencode.cli.client.Command[]
 
 ---Verify that an `opencode` process is responding on the given port,
 ---and fetch some details about it.
@@ -64,17 +65,25 @@ local function get_server(port)
               resolve(subagents)
             end)
           end),
+          Promise.new(function(resolve)
+            require("opencode.cli.client").get_commands(port, function(custom_commands)
+              resolve(custom_commands)
+            end)
+          end),
         })
       end
     )
-    :next(function(results) ---@param results { [1]: string, [2]: string, [3]: opencode.cli.client.Agent[] }
-      return {
-        port = port,
-        cwd = results[1],
-        title = results[2],
-        subagents = results[3],
-      }
-    end)
+    :next(
+      function(results) ---@param results { [1]: string, [2]: string, [3]: opencode.cli.client.Agent[], [4]: opencode.cli.client.Command[] }
+        return {
+          port = port,
+          cwd = results[1],
+          title = results[2],
+          subagents = results[3],
+          custom_commands = results[4],
+        }
+      end
+    )
 end
 
 ---@return Promise<opencode.cli.server.Server[]>
