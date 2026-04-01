@@ -24,14 +24,13 @@ M.ask = function(default, opts)
   return require("opencode.ui.ask")
     .ask(default, opts.context)
     :next(function(input) ---@param input string
-      -- TODO: Should we remove `opts.clear` and `opts.submit` in favor of just checking if the input ends with `\n`?
+      -- TODO: Remove `opts.submit` in favor of just checking if the input ends with `\n`?
       -- (maybe even in `prompt()` itself?)
       -- Confusing to have both.
       -- I think it's better, but don't love the breaking change.
       -- Although for most users, I imagine they just use `opts.submit = false` and thus won't be affected.
       if input:sub(-2) == "\\n" then
         input = input:sub(1, -3) .. "\n" -- Remove the escaped `\n` and add an actual newline character for `opencode` to interpret.
-        opts.clear = false
         opts.submit = false
       end
       opts.context:clear()

@@ -1,7 +1,6 @@
 local M = {}
 
 ---@class opencode.api.prompt.Opts
----@field clear? boolean Clear the TUI input before.
 ---@field submit? boolean Submit the TUI input after.
 ---@field context? opencode.Context The context the prompt is being made in.
 
@@ -16,7 +15,6 @@ function M.prompt(prompt, opts)
   local referenced_prompt = require("opencode.config").opts.prompts[prompt]
   prompt = referenced_prompt and referenced_prompt.prompt or prompt
   opts = {
-    clear = opts and opts.clear or false,
     submit = opts and opts.submit or false,
     context = opts and opts.context or require("opencode.context").new(),
   }
@@ -24,16 +22,6 @@ function M.prompt(prompt, opts)
   local Promise = require("opencode.promise")
   return require("opencode.server")
     .get()
-    :next(function(server) ---@param server opencode.server.Server
-      if opts.clear then
-        return Promise.new(function(resolve)
-          server:tui_execute_command("prompt.clear", function()
-            resolve(server)
-          end)
-        end)
-      end
-      return server
-    end)
     :next(function(server) ---@param server opencode.server.Server
       local rendered = opts.context:render(prompt, server.subagents)
       local plaintext = opts.context.plaintext(rendered.output)
