@@ -181,16 +181,6 @@ local defaults = {
 ---@type opencode.Opts
 M.opts = vim.tbl_deep_extend("force", vim.deepcopy(defaults), vim.g.opencode_opts or {})
 
----@diagnostic disable-next-line: undefined-field
-if M.opts.provider then
-  -- TODO: Remove later
-  vim.notify(
-    "The `provider` option has been removed for maintenance reasons. Please use the simpler `server` option instead, and/or manage your `opencode` how you do other programs. See `README.md#server` for details. Sorry for the inconvenience!",
-    vim.log.levels.WARN,
-    { title = "opencode" }
-  )
-end
-
 local snacks_ok, snacks = pcall(require, "snacks")
 ---@cast snacks Snacks
 if not snacks_ok or not snacks.config.get("input", {}).enabled then
