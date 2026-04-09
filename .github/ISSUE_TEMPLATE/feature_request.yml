@@ -8,7 +8,11 @@ body:
       label: Did you check the docs?
       description: Make sure you read all the docs before submitting a feature request
       options:
-        - label: I have read all the docs
+        - label: I am using the latest plugin version
+          required: true
+        - label: I read the plugin docs
+          required: true
+        - label: I read the [opencode docs](https://opencode.ai/docs)
           required: true
   - type: textarea
     validations:
