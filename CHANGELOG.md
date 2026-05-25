@@ -1,5 +1,105 @@
 # Changelog
 
+## [0.10.1](https://github.com/nickjvandyke/opencode.nvim/compare/v0.10.0...v0.10.1) (2026-05-23)
+
+
+### Bug Fixes
+
+* **context:** don't shorten to home directory for more reliable READs ([985764e](https://github.com/nickjvandyke/opencode.nvim/commit/985764ebd36387a193550afd05d03d23a394a946))
+* **select:** only include server fns when they're configured ([47ce749](https://github.com/nickjvandyke/opencode.nvim/commit/47ce74944142d2f2e8e52a8f93801ed9eee68497))
+* **status:** improve reliability and simplicity ([677dddb](https://github.com/nickjvandyke/opencode.nvim/commit/677dddb6be04d5d8a7b380278613219b0384c6b7))
+
+## [0.10.0](https://github.com/nickjvandyke/opencode.nvim/compare/v0.9.0...v0.10.0) (2026-05-17)
+
+
+### ⚠ BREAKING CHANGES
+
+* **server:** support arbitrary and remote URLs
+
+### Features
+
+* **server:** support arbitrary and remote URLs ([6151568](https://github.com/nickjvandyke/opencode.nvim/commit/6151568e08b507edc2f471b50ad9eeb31d387bf4))
+
+
+### Bug Fixes
+
+* **operator:** remove duplicate line number when operating on a single line ([6b5acdc](https://github.com/nickjvandyke/opencode.nvim/commit/6b5acdcb4b2268c3a2b4b791457bf5b12e38e1bb))
+* **server:** inverted initial SSE connection error propagation ([0a21de6](https://github.com/nickjvandyke/opencode.nvim/commit/0a21de6f00a6b84c3e9903b0aee967492e233c00))
+* **server:** propagate `start` error rather than original error ([ae67311](https://github.com/nickjvandyke/opencode.nvim/commit/ae67311268cc3a8aa57e23d6ad6cda5976be6bbe))
+* **server:** propagate initial SSE connection success and error ([140c895](https://github.com/nickjvandyke/opencode.nvim/commit/140c8959719b0510f5ab32afc6ea3fa27f27138a))
+
+## [0.9.0](https://github.com/nickjvandyke/opencode.nvim/compare/v0.8.3...v0.9.0) (2026-05-16)
+
+
+### ⚠ BREAKING CHANGES
+
+* **config:** move `opts.prompts` to `opts.select.prompts`, unnest `opts.select.sections`
+* **prompts:** simplify `opts.prompts` to string, use postfixes for ask and append
+* **api:** only expose select server and session in `select` menu, not API
+
+### Features
+
+* **api:** only expose select server and session in `select` menu, not API ([fcfd017](https://github.com/nickjvandyke/opencode.nvim/commit/fcfd017a908a820085c04e8aba06153d76e55c92))
+* **config:** move `opts.prompts` to `opts.select.prompts`, unnest `opts.select.sections` ([e2288db](https://github.com/nickjvandyke/opencode.nvim/commit/e2288db06c3865b0703d93c1d434a870ca119e43))
+* **prompt:** replace `opts.submit` with ending space ([f6e1efd](https://github.com/nickjvandyke/opencode.nvim/commit/f6e1efd3455f0c56d8e45c517d148406f7cb19e3))
+* **prompts:** simplify `opts.prompts` to string, use postfixes for ask and append ([48d0965](https://github.com/nickjvandyke/opencode.nvim/commit/48d09650dad64677c1318eab8de5458211b98835))
+* **select:** clarify server item descriptions ([f7cd638](https://github.com/nickjvandyke/opencode.nvim/commit/f7cd63801da202b345cf030ee4acec3cec260d90))
+
+
+### Bug Fixes
+
+* **context:** highlighting visual block mode ([82ba668](https://github.com/nickjvandyke/opencode.nvim/commit/82ba6686ff7acdc39cb2ed019908d20f7a52b66d))
+* **select:** override prompts and commands with passed opts ([bbed2b7](https://github.com/nickjvandyke/opencode.nvim/commit/bbed2b758c652e2b6262fede6ea5b298e852143e))
+
+## [0.8.3](https://github.com/nickjvandyke/opencode.nvim/compare/v0.8.2...v0.8.3) (2026-05-15)
+
+
+### Features
+
+* **server:** support auth ([0dd8824](https://github.com/nickjvandyke/opencode.nvim/commit/0dd88243b151b25e291e714d572d303a694b5f7c))
+
+
+### Bug Fixes
+
+* **config:** ensure all config type defs can be found by Lua LSP ([03da482](https://github.com/nickjvandyke/opencode.nvim/commit/03da4820f30e8a6dce6d4f366e59eaa8f1f6d130))
+
+## [0.8.2](https://github.com/nickjvandyke/opencode.nvim/compare/v0.8.1...v0.8.2) (2026-05-06)
+
+
+### Bug Fixes
+
+* **context:** reference file-backed bufs with non-empty buftype ([f77904d](https://github.com/nickjvandyke/opencode.nvim/commit/f77904d53bee4618e0b1e92796db4f154739777d))
+
+## [0.8.1](https://github.com/nickjvandyke/opencode.nvim/compare/v0.8.0...v0.8.1) (2026-05-01)
+
+
+### Bug Fixes
+
+* **server:** correctly detect and discard discovered non-servers ([#244](https://github.com/nickjvandyke/opencode.nvim/issues/244)) ([97fbb2a](https://github.com/nickjvandyke/opencode.nvim/commit/97fbb2afde37d48d4bf4f222af559f179f54a043))
+* **server:** process discovery on NixOS ([#245](https://github.com/nickjvandyke/opencode.nvim/issues/245)) ([840b2fa](https://github.com/nickjvandyke/opencode.nvim/commit/840b2fa8c3c03d716a4018a736797b9c6aed046b))
+
+## [0.8.0](https://github.com/nickjvandyke/opencode.nvim/compare/v0.7.0...v0.8.0) (2026-04-29)
+
+
+### ⚠ BREAKING CHANGES
+
+* **ask:** trigger append on space suffix instead of \n; remove snacks.input append keymap
+* **prompts:** remove resolving named prompts in `prompt()`
+
+### Features
+
+* **ask:** trigger append on space suffix instead of \n; remove snacks.input append keymap ([ceb0371](https://github.com/nickjvandyke/opencode.nvim/commit/ceb03717b7bb2060d8d3504b8d56017035f0edcc))
+* **lsp:** attach to connected server (if any) for hover ([f5a8413](https://github.com/nickjvandyke/opencode.nvim/commit/f5a841314dd5a189fe2d34630cf7d3e6386d731d))
+* **prompts:** remove resolving named prompts in `prompt()` ([16e2243](https://github.com/nickjvandyke/opencode.nvim/commit/16e2243ae66aee81b397e9799cb5e272bdaa6d32))
+* **server:** don't auto-select servers that don't overlap CWD ([ad48ee2](https://github.com/nickjvandyke/opencode.nvim/commit/ad48ee24c7e2f90305134ca7762ca00c639a18e3))
+
+
+### Bug Fixes
+
+* **server:** emit one process entry per (PID, port) pair ([#242](https://github.com/nickjvandyke/opencode.nvim/issues/242)) ([0e3ae21](https://github.com/nickjvandyke/opencode.nvim/commit/0e3ae21c6c4c8def63e3503b238870f1251288e4))
+* **server:** poll for 5s to account for slow `opencode` startup ([4002092](https://github.com/nickjvandyke/opencode.nvim/commit/4002092d701007acbb5b8fb1a47924ea719241b0))
+* **terminal:** don't override focus behavior of other terminal integrations ([b3cdd74](https://github.com/nickjvandyke/opencode.nvim/commit/b3cdd746a5ca321b6884badefa0ba22c86c3d45e))
+
 ## [0.7.0](https://github.com/nickjvandyke/opencode.nvim/compare/v0.6.0...v0.7.0) (2026-04-07)
 
 

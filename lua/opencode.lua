@@ -7,16 +7,14 @@ local M = {}
 
 ---Input a prompt for `opencode`.
 ---
---- - Press the up arrow to browse recent asks.
+--- - End the prompt with a space to append instead of submit.
+--- - Press `<Up>` to browse recent asks.
 --- - Highlights and completes contexts and `opencode` subagents.
 ---   - Press `<Tab>` to trigger built-in completion.
---- - End the prompt with `\n` to append instead of submit.
---- - Additionally, when using `snacks.input`:
----   - Press `<S-CR>` to append instead of submit.
----   - Offers completions via in-process LSP.
+---   - Provided by in-process LSP when using `snacks.input`.
 ---
 ---@param default? string Text to pre-fill the input with.
----@param opts? opencode.api.prompt.Opts Options for `prompt()`.
+---@param opts? opencode.api.prompt.Opts
 M.ask = function(default, opts)
   opts = opts or {}
   opts.context = opts.context or require("opencode.context").new()
@@ -24,16 +22,6 @@ M.ask = function(default, opts)
   return require("opencode.ui.ask")
     .ask(default, opts.context)
     :next(function(input) ---@param input string
-      -- TODO: Remove `opts.submit` in favor of just checking if the input ends with `\n`?
-      -- (maybe even in `prompt()` itself?)
-      -- Confusing to have both.
-      -- I think it's better, but don't love the breaking change.
-      -- Although for most users, I imagine they just use `opts.submit = false` and thus won't be affected.
-      if input:sub(-2) == "\\n" then
-        input = input:sub(1, -3) .. "\n" -- Remove the escaped `\n` and add an actual newline character for `opencode` to interpret.
-        opts.submit = false
-      end
-      opts.context:clear()
       return require("opencode.api.prompt").prompt(input, opts)
     end)
     :catch(function(err)
@@ -60,40 +48,6 @@ M.select = function(opts)
   end)
 end
 
----Select the active `opencode` session.
-M.select_session = function()
-  return require("opencode.ui.select_session")
-    .select_session()
-    :next(function(result) ---@param result { session: opencode.server.Session, server: opencode.server.Server }
-      result.server:select_session(result.session.id)
-    end)
-    :catch(function(err)
-      if err then
-        vim.notify(err, vim.log.levels.ERROR, { title = "opencode" })
-      end
-    end)
-end
-
----Select an `opencode` server to connect to,
----sending future requests to it and subscribing to its events.
-M.select_server = function()
-  -- Should we also offer connected and configured server here?
-  return require("opencode.server")
-    .get_all()
-    :next(function(servers) ---@param servers opencode.server.Server[]
-      return require("opencode.ui.select_server").select_server(servers)
-    end)
-    :next(function(server) ---@param server opencode.server.Server
-      require("opencode.events").connect(server)
-      return server
-    end)
-    :catch(function(err)
-      if err then
-        vim.notify(err, vim.log.levels.ERROR, { title = "opencode" })
-      end
-    end)
-end
-
 M.statusline = require("opencode.status").statusline
 
 ------------------------
@@ -102,9 +56,9 @@ M.statusline = require("opencode.status").statusline
 
 ---Prompt `opencode`.
 ---
---- - Resolves `prompt` if it references an `opts.prompts` entry by name.
+--- - End the prompt with a space to append instead of submit.
 --- - Injects `opts.contexts` into `prompt`.
---- - `opencode` will interpret `@` references to files or subagents
+--- - `opencode` will interpret references to files or subagents
 ---
 ---@param prompt string
 ---@param opts? opencode.api.prompt.Opts
@@ -139,7 +93,7 @@ M.toggle = function()
   if opts.server and opts.server.toggle then
     opts.server.toggle()
   else
-    vim.notify("No server `toggle` function configured", vim.log.levels.ERROR, { title = "opencode" })
+    vim.notify("No `opts.server.toggle` function configured", vim.log.levels.ERROR, { title = "opencode" })
   end
 end
 ---Start the configured `opencode` server.
@@ -148,7 +102,7 @@ M.start = function()
   if opts.server and opts.server.start then
     opts.server.start()
   else
-    vim.notify("No server `start` function configured", vim.log.levels.ERROR, { title = "opencode" })
+    vim.notify("No `opts.server.start` function configured", vim.log.levels.ERROR, { title = "opencode" })
   end
 end
 ---Stop the configured `opencode` server.
@@ -157,7 +111,7 @@ M.stop = function()
   if opts.server and opts.server.stop then
     opts.server.stop()
   else
-    vim.notify("No server `stop` function configured", vim.log.levels.ERROR, { title = "opencode" })
+    vim.notify("No `opts.server.stop` function configured", vim.log.levels.ERROR, { title = "opencode" })
   end
 end
 

@@ -14,35 +14,6 @@ Context.__index = Context
 
 local ns_id = vim.api.nvim_create_namespace("OpencodeContext")
 
----Returns the filename for a buffer if it has one, else nil.
----@param buf number
-local function get_filename(buf)
-  if vim.api.nvim_get_option_value("buftype", { buf = buf }) == "" then
-    local name = vim.api.nvim_buf_get_name(buf)
-    if name ~= "" then
-      return name
-    end
-  end
-
-  return nil
-end
-
-local function last_used_valid_win()
-  local last_used_win = 0
-  local latest_last_used = 0
-  for _, win in ipairs(vim.api.nvim_list_wins()) do
-    local buf = vim.api.nvim_win_get_buf(win)
-    if get_filename(buf) then
-      local last_used = vim.fn.getbufinfo(buf)[1].lastused or 0
-      if last_used > latest_last_used then
-        latest_last_used = last_used
-        last_used_win = win
-      end
-    end
-  end
-  return last_used_win
-end
-
 ---@class opencode.context.Range
 ---@field from integer[] { line, col } (1,0-based)
 ---@field to integer[] { line, col } (1,0-based)
@@ -67,6 +38,9 @@ local function selection(buf)
   if from[1] > to[1] or (from[1] == to[1] and from[2] > to[2]) then
     from, to = to, from
   end
+  if kind == "block" and from[2] > to[2] then
+    from[2], to[2] = to[2], from[2]
+  end
 
   return {
     from = { from[1], from[2] },
@@ -78,18 +52,37 @@ end
 ---@param buf integer
 ---@param range opencode.context.Range
 local function highlight(buf, range)
-  -- FIX: In visual block mode, it highlights _all_ the cols between the start and end
-  local end_row = range.to[1] - (range.kind == "line" and 0 or 1)
-  local end_col = nil
-  if range.kind ~= "line" then
-    local line = vim.api.nvim_buf_get_lines(buf, end_row, end_row + 1, false)[1] or ""
-    end_col = math.min(range.to[2] + 1, #line)
+  local from_row = range.from[1] - 1
+  local from_col = range.from[2]
+
+  if range.kind == "block" then
+    local start_row = range.from[1] - 1
+    local end_row = range.to[1] - 1
+    local start_col = range.from[2]
+    local end_col = range.to[2]
+    for row = start_row, end_row do
+      local line = vim.api.nvim_buf_get_lines(buf, row, row + 1, false)[1] or ""
+      local clamp_col = math.min(end_col + 1, #line)
+      if clamp_col > start_col then
+        vim.api.nvim_buf_set_extmark(buf, ns_id, row, start_col, {
+          end_col = clamp_col,
+          hl_group = "Visual",
+        })
+      end
+    end
+  else
+    local end_row = range.kind ~= "line" and range.to[1] - 1 or range.to[1]
+    local end_col = nil
+    if range.kind ~= "line" then
+      local line = vim.api.nvim_buf_get_lines(buf, end_row, end_row + 1, false)[1] or ""
+      end_col = math.min(range.to[2] + 1, #line)
+    end
+    vim.api.nvim_buf_set_extmark(buf, ns_id, from_row, from_col, {
+      end_row = end_row,
+      end_col = end_col,
+      hl_group = "Visual",
+    })
   end
-  vim.api.nvim_buf_set_extmark(buf, ns_id, range.from[1] - 1, range.from[2], {
-    end_row = end_row,
-    end_col = end_col,
-    hl_group = "Visual",
-  })
 end
 
 ---The currently active context.
@@ -100,8 +93,8 @@ Context.current = nil
 ---@param range? opencode.context.Range The range of the operator or visual selection. Defaults to current visual selection, if any.
 function Context.new(range)
   local self = setmetatable({}, Context)
-  self.win = last_used_valid_win()
-  self.buf = vim.api.nvim_win_get_buf(self.win)
+  self.win = vim.api.nvim_get_current_win()
+  self.buf = vim.api.nvim_get_current_buf()
   self.cursor = vim.api.nvim_win_get_cursor(self.win)
   self.range = range or selection(self.buf)
 
@@ -271,15 +264,14 @@ end
 function Context.format(loc, args)
   assert(type(loc) ~= "string" or #loc > 0, "Filepath cannot be an empty string")
 
-  -- Not we check number, not integer - I think integer is only an annotations thing, and at runtime only numbers exist?
-  local filepath = (type(loc) == "number" and get_filename(loc)) or type(loc) == "string" and loc or nil
-  if not filepath then
+  local filepath = (type(loc) == "string" and loc) or (type(loc) == "number" and vim.api.nvim_buf_get_name(loc)) or nil
+  if not filepath or filepath == "" then
     return nil
   end
 
   local result = ""
 
-  local absolute_path = vim.fn.fnamemodify(filepath, ":p:~")
+  local absolute_path = vim.fn.fnamemodify(filepath, ":p")
   result = result .. absolute_path
 
   if args and args.start_line then
@@ -319,7 +311,7 @@ function Context:this()
     return Context.format(self.buf, {
       start_line = self.range.from[1],
       start_col = (self.range.kind ~= "line") and self.range.from[2] or nil,
-      end_line = self.range.to[1],
+      end_line = (self.range.kind ~= "line" or self.range.from[1] ~= self.range.to[1]) and self.range.to[1] or nil,
       end_col = (self.range.kind ~= "line") and self.range.to[2] or nil,
     })
   else
